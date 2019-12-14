@@ -41,11 +41,22 @@ public class Sudoku {
      */
     private boolean preCheck() {
 
+
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                if (board[i][j] == 0) continue;
-                if (!withinRules(i,j,board[i][j]))
+
+                if (board[i][j] == 0) {
+                    continue;
+                }
+
+                int temp = board[i][j];
+                board[i][j] = 0;
+
+                if (!withinRules(i,j,temp)) {
+                    board[i][j] = temp;
                     return false;
+                }
+                board[i][j] = temp;
             }
         }
         return true;
