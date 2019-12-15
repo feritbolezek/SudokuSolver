@@ -31,13 +31,13 @@ public class DigitTextField extends TextField {
 
     @Override
     public void replaceText(int start, int end, String text) {
-        if ( (limit() || checkIfDigit(text)) && !text.equals("") ) return;
+        if ( (limit() || checkIfNotDigit(text)) && !text.equals("") ) return;
         super.replaceText(start, end, text);
     }
 
     @Override
     public void replaceSelection(String replacement) {
-        if ( (limit() || checkIfDigit(replacement)) && !replacement.equals("") ) return;
+        if ( (limit() || checkIfNotDigit(replacement)) && !replacement.equals("") ) return;
         super.replaceSelection(replacement);
     }
 
@@ -45,10 +45,9 @@ public class DigitTextField extends TextField {
         return getText().length() >= 1;
     }
 
-    private boolean checkIfDigit(String text) {
+    private boolean checkIfNotDigit(String text) {
         try {
-            Integer.parseInt(text);
-            return false;
+            return Integer.parseInt(text) == 0;
         } catch (NumberFormatException e) {
             return true;
         }

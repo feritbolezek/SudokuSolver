@@ -16,9 +16,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -30,13 +34,17 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
     private GridPane mainGrid;
     private TilePane[][] tiles = new TilePane[9][9];
 
+
     @Override
     public void start(Stage stage) throws Exception {
         Group root = new Group();
-        Scene mainScene = new Scene(root,370,430, Paint.valueOf(Colors.BACKGROUND_COLOR));
+        Scene mainScene = new Scene(root,395,450, Paint.valueOf(Colors.BACKGROUND_COLOR));
         stage.setScene(mainScene);
+        stage.setTitle("EZ Sudoku Solver");
+        stage.getIcons().add(new Image("https://images.assetsdelivery.com/compings_v2/urfandadashov/urfandadashov1808/urfandadashov180815816.jpg"));
+        stage.setResizable(false);
 
-        sudoku = new Sudoku();
+        sudoku = new Sudoku(this);
         sudoku.addListener(this);
 
         mainContainer = new VBox(20);
@@ -49,19 +57,37 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
     }
 
     private void setupGrid() {
+
         mainGrid = new GridPane();
+        mainGrid.setHgap(5);
+        mainGrid.setVgap(5);
+
+
         for (int i = 0; i < 9; i++) {
+
             for (int j = 0; j < 9; j++) {
-                TilePane tile = createTile(i,j);
+                TilePane tile = createTile(i,j,colorChoice(i,j));
                 mainGrid.add(tile,i,j);
                 tiles[i][j] = tile;
-
             }
         }
         mainContainer.getChildren().add(mainGrid);
     }
 
-    private TilePane createTile(int i, int j) {
+    private String colorChoice(int i, int j) {
+        if ((j > 2 && j < 6) && (i > 2 && i < 6))
+            return Colors.TILE_COLOR;
+        else if ((j > 2 && j < 6))
+            return Colors.TILE_COLOR_TWO;
+
+        if (i < 3 || i > 5)
+            return Colors.TILE_COLOR;
+        else
+            return Colors.TILE_COLOR_TWO;
+
+    }
+
+    private TilePane createTile(int i, int j, String color) {
         TilePane tilePane = new TilePane();
         BorderPane bp = new BorderPane();
         DigitTextField tf = new DigitTextField();
@@ -71,13 +97,21 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
         bp.setMinSize(40,40);
         tilePane.setMaxSize(40,40);
         tilePane.setMinSize(40,40);
+        tf.setMaxSize(40,40);
 
         tf.setRow(i);
         tf.setColumn(j);
 
+        DropShadow ds = new DropShadow();
+        ds.setOffsetY(1.0f);
+        ds.setColor(Color.color(0f, 0f, 0f));
+
+        tf.setEffect(ds);
+
         tf.setStyle("-fx-text-inner-color: white;");
         tf.setAlignment(Pos.BASELINE_CENTER);
-        Paint paint = Paint.valueOf(Colors.TILE_COLOR);
+        tf.setFont(Font.font("Tahoma", FontWeight.BOLD,16));
+        Paint paint = Paint.valueOf(color);
         CornerRadii cornerRadii = new CornerRadii(5);
         Insets insets = new Insets(1);
         BackgroundFill bgFill = new BackgroundFill(paint, cornerRadii,insets);
@@ -113,25 +147,28 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
 
         debugBtn.setOnAction((event -> sudoku.printSudoku()) );
         solveBtn.setOnAction(event -> {
-            boolean result = sudoku.solve();
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 9; j++) {
-                    updateValue(i,j);
-                }
-            }
-            
+//            new Thread(() -> {
+//                boolean result =sudoku.solve();
+//                if (!result) {
+//                    Platform.runLater(() -> {
+//                        Alert alert = new Alert(Alert.AlertType.ERROR, "NO SOLUTION!");
+//                        alert.show();
+//                    });
+//                }
+//            }).start();
+            boolean result =sudoku.solve();
             if (!result) {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "NO SOLUTION!");
-                alert.show();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "NO SOLUTION!");
+                    alert.show();
+                });
             }
+            updateAllValues();
+
         });
         clearBtn.setOnAction(event ->  {
             sudoku.clear();
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 9; j++) {
-                    updateValue(i,j);
-                }
-            }
+            updateAllValues();
         });
 
         mainContainer.getChildren().add(bottomBar);
@@ -151,7 +188,15 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
 
     }
 
-    private void updateValue(int i, int j) {
+    public void updateAllValues() {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                updateValue(i,j);
+            }
+        }
+    }
+
+    public void updateValue(int i, int j) {
         TilePane tp = tiles[i][j];
         BorderPane bp = (BorderPane) tp.getChildren().get(0);
         DigitTextField dt = (DigitTextField) bp.getCenter();
@@ -160,7 +205,7 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
         if (val == 0) {
             dt.clear();
         } else
-            dt.replaceSelection(Integer.toString(val));
+            dt.setText(Integer.toString(val));
     }
 
 

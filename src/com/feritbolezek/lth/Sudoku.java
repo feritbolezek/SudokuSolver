@@ -1,19 +1,25 @@
 package com.feritbolezek.lth;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 public class Sudoku {
 
     private int[][] board;
 
+    private SudokuController sudokuController;
+
     private List<ValueChangedListener> listeners;
 
-    Sudoku() {
+    Sudoku(SudokuController sudokuController) {
         board = new int[9][9];
         listeners = new ArrayList<>();
+        this.sudokuController = sudokuController;
     }
 
 
@@ -27,13 +33,7 @@ public class Sudoku {
      * @return True if solved successfully false otherwise.
      */
     public boolean solve() {
-        if (preCheck()) {
-
-            boolean res = solve(0, 0);
-            System.out.println(res);
-            return res;
-        }
-        return false;
+        return preCheck() && solve(0, 0);
     }
 
     /**
@@ -64,12 +64,21 @@ public class Sudoku {
 
     private boolean solve(int i, int j) {
 
+//        Platform.runLater(() -> sudokuController.updateAllValues());
+//
+//        try {
+//            Thread.sleep(1);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
         if (i == 9) {
             i = 0;
             if (++j == 9) {
                 return true;
             }
         }
+
         if (board[i][j] != 0) {
             return solve(i + 1, j);
         }
@@ -77,10 +86,6 @@ public class Sudoku {
         for (int k = 1; k <= 9; k++) {
             if (withinRules(i, j, k)) {
                 board[i][j] = k;
-                for (ValueChangedListener vcl : listeners) {
-                    vcl.onValueChange(i,j,k);
-                }
-
 
                 if (solve(i + 1, j))
                     return true;
