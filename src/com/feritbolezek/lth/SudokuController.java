@@ -13,9 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -26,7 +24,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class SudokuController extends Application implements Sudoku.ValueChangedListener {
+public class SudokuController extends Application {
 
 
     private Sudoku sudoku;
@@ -45,7 +43,6 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
         stage.setResizable(false);
 
         sudoku = new Sudoku(this);
-        sudoku.addListener(this);
 
         mainContainer = new VBox(20);
 
@@ -139,32 +136,19 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
         Button clearBtn = new Button("Clear");
         Button debugBtn = new Button("Debug");
 
+        CheckBox visualizeBox = new CheckBox("Visualize (Experimental)");
+        visualizeBox.setTextFill(Paint.valueOf(Colors.TEXT_COLOR));
+
         solveBtn.setMaxSize(60,8);
 
         bottomBar.getChildren().add(solveBtn);
         bottomBar.getChildren().add(clearBtn);
         bottomBar.getChildren().add(debugBtn);
+        bottomBar.getChildren().add(visualizeBox);
 
         debugBtn.setOnAction((event -> sudoku.printSudoku()) );
         solveBtn.setOnAction(event -> {
-//            new Thread(() -> {
-//                boolean result =sudoku.solve();
-//                if (!result) {
-//                    Platform.runLater(() -> {
-//                        Alert alert = new Alert(Alert.AlertType.ERROR, "NO SOLUTION!");
-//                        alert.show();
-//                    });
-//                }
-//            }).start();
-            boolean result =sudoku.solve();
-            if (!result) {
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR, "NO SOLUTION!");
-                    alert.show();
-                });
-            }
-            updateAllValues();
-
+            attemptSudokuSolution(visualizeBox.isSelected());
         });
         clearBtn.setOnAction(event ->  {
             sudoku.clear();
@@ -174,19 +158,38 @@ public class SudokuController extends Application implements Sudoku.ValueChanged
         mainContainer.getChildren().add(bottomBar);
     }
 
-    @Override
-    public void onValueChange(int i, int j, int val) {
+    private void attemptSudokuSolution(boolean visualize) {
+        if (visualize) {
+            new Thread(() -> {
+                long startTime = System.currentTimeMillis();
+                boolean result = sudoku.solve(true);
+                long endTime = System.currentTimeMillis() - startTime;
 
-/*        TilePane tp = tiles[i][j];
-        BorderPane bp = (BorderPane) tp.getChildren().get(0);
-        DigitTextField dt = (DigitTextField) bp.getCenter();
-
-        if (val == 0) {
-            dt.clear();
-        } else
-            dt.replaceSelection(Integer.toString(val));*/
-
+                displayResult(result,endTime);
+            }).start();
+        } else {
+            long startTime = System.currentTimeMillis();
+            boolean result = sudoku.solve(false);
+            long endTime = System.currentTimeMillis() - startTime;
+            displayResult(result,endTime);
+        }
+        updateAllValues();
     }
+
+    private void displayResult(boolean result, long time) {
+        if (!result) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "No solution! It took " + time + " ms to find it.");
+                alert.show();
+            });
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Solution found! It took " + time + " ms to find it.");
+                alert.show();
+            });
+        }
+    }
+
 
     public void updateAllValues() {
         for (int i = 0; i < 9; i++) {

@@ -14,25 +14,20 @@ public class Sudoku {
 
     private SudokuController sudokuController;
 
-    private List<ValueChangedListener> listeners;
+    private boolean visualize = false;
 
     Sudoku(SudokuController sudokuController) {
         board = new int[9][9];
-        listeners = new ArrayList<>();
         this.sudokuController = sudokuController;
     }
-
-
-    public void addListener(ValueChangedListener listener) {
-        listeners.add(listener);
-    }
-
+    
     /**
-     * Solves the Sudoku.
-     *
+     *  Solves the Sudoku.
+     * @param visualize Set to true if the algorithm should have delays allowing UI to update while running.
      * @return True if solved successfully false otherwise.
      */
-    public boolean solve() {
+    public boolean solve(boolean visualize) {
+        this.visualize = visualize;
         return preCheck() && solve(0, 0);
     }
 
@@ -64,13 +59,6 @@ public class Sudoku {
 
     private boolean solve(int i, int j) {
 
-//        Platform.runLater(() -> sudokuController.updateAllValues());
-//
-//        try {
-//            Thread.sleep(1);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
 
         if (i == 9) {
             i = 0;
@@ -87,8 +75,20 @@ public class Sudoku {
             if (withinRules(i, j, k)) {
                 board[i][j] = k;
 
-                if (solve(i + 1, j))
+                if (visualize) {
+                    Platform.runLater(() -> sudokuController.updateAllValues());
+
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                if (solve(i + 1, j)) {
                     return true;
+                }
             }
         }
 
@@ -138,9 +138,6 @@ public class Sudoku {
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 board[i][j] = 0;
-                for (ValueChangedListener vcl : listeners) {
-                    vcl.onValueChange(i,j,0);
-                }
             }
         }
     }
