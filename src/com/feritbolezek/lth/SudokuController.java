@@ -146,7 +146,7 @@ public class SudokuController extends Application {
         bottomBar.getChildren().add(debugBtn);
         bottomBar.getChildren().add(visualizeBox);
 
-        debugBtn.setOnAction((event -> sudoku.printSudoku()) );
+        debugBtn.setOnAction((event -> System.out.println(sudoku.printSudoku())) );
         solveBtn.setOnAction(event -> {
             attemptSudokuSolution(visualizeBox.isSelected());
         });
@@ -199,7 +199,7 @@ public class SudokuController extends Application {
         }
     }
 
-    public void updateValue(int i, int j) {
+    private void updateValue(int i, int j) {
         TilePane tp = tiles[i][j];
         BorderPane bp = (BorderPane) tp.getChildren().get(0);
         DigitTextField dt = (DigitTextField) bp.getCenter();

@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -16,11 +17,15 @@ public class Sudoku {
 
     private boolean visualize = false;
 
+    Sudoku() {
+        board = new int[9][9];
+    }
+
     Sudoku(SudokuController sudokuController) {
         board = new int[9][9];
         this.sudokuController = sudokuController;
     }
-    
+
     /**
      *  Solves the Sudoku.
      * @param visualize Set to true if the algorithm should have delays allowing UI to update while running.
@@ -75,7 +80,7 @@ public class Sudoku {
             if (withinRules(i, j, k)) {
                 board[i][j] = k;
 
-                if (visualize) {
+                if (visualize && sudokuController != null) {
                     Platform.runLater(() -> sudokuController.updateAllValues());
 
                     try {
@@ -101,8 +106,15 @@ public class Sudoku {
         return board[i][j];
     }
 
+    /**
+     * Updates the cell value at the specified index.
+     * @param i row.
+     * @param j column.
+     * @param value the new value to update the cell with.
+     */
     public void updateTileValue(int i, int j, int value) {
-        board[i][j] = value;
+        if (value >= 0 && value <= 9)
+            board[i][j] = value;
     }
 
     private boolean withinRules(int i, int j, int val) {
@@ -142,22 +154,28 @@ public class Sudoku {
         }
     }
 
+
     /**
-     * Prints out values of each tile on the grid. One of the 9 grids are chosen [0-8]. Going from left to right.
+     * Gives the current state of the board in a formatted form.
+     * @return Returns the printed text.
      */
-    public void printSudoku() {
-        for (int j = 0; j < 9; j++) {
-            for (int i = 0; i < 9; i++) {
+    public String printSudoku() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (int i = 0; i < 9; i++) {
+            stringBuilder.append("-------------------------------------\n");
+            stringBuilder.append("| ");
+            for (int j = 0; j < 9; j++) {
                 int val = board[i][j];
-                System.out.print(val + " | ");
+                stringBuilder.append(val);
+                stringBuilder.append(" | ");
             }
-            System.out.println(" ");
-            System.out.println("-------------------------------------------------------------------");
+            stringBuilder.append("\n");
         }
-    }
+        stringBuilder.append("-------------------------------------");
 
-    interface ValueChangedListener {
-        void onValueChange(int i, int j, int val);
-    }
+        return stringBuilder.toString();
 
+    }
 }
