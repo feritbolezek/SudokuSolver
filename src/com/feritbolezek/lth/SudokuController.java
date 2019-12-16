@@ -29,7 +29,6 @@ public class SudokuController extends Application {
 
     private Sudoku sudoku;
     private VBox mainContainer;
-    private GridPane mainGrid;
     private TilePane[][] tiles = new TilePane[9][9];
 
 
@@ -55,7 +54,7 @@ public class SudokuController extends Application {
 
     private void setupGrid() {
 
-        mainGrid = new GridPane();
+        GridPane mainGrid = new GridPane();
         mainGrid.setHgap(5);
         mainGrid.setVgap(5);
 
@@ -179,7 +178,7 @@ public class SudokuController extends Application {
     private void displayResult(boolean result, long time) {
         if (!result) {
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.ERROR, "No solution! It took " + time + " ms to find it.");
+                Alert alert = new Alert(Alert.AlertType.ERROR, "No solution! It took " + time + " ms to figure that out.");
                 alert.show();
             });
         } else {
@@ -190,7 +189,9 @@ public class SudokuController extends Application {
         }
     }
 
-
+    /**
+     * Updates all cell values on the UI (the TextField values).
+     */
     public void updateAllValues() {
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {

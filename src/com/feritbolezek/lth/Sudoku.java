@@ -1,5 +1,7 @@
 package com.feritbolezek.lth;
 
+import com.feritbolezek.lth.constants.Game;
+import com.sun.istack.internal.Nullable;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 
@@ -17,12 +19,20 @@ public class Sudoku {
 
     private boolean visualize = false;
 
+
+    /**
+     * Creates a new Sudoku with an empty board.
+     */
     Sudoku() {
-        board = new int[9][9];
+        board = new int[Game.ROWS][Game.COLUMNS];
     }
 
-    Sudoku(SudokuController sudokuController) {
-        board = new int[9][9];
+    /**
+     * Creates a new Sudoku with an empty board.
+     * @param sudokuController optional parameter which allows visualization of the sudoku solving algorithm.
+     */
+    Sudoku(@Nullable SudokuController sudokuController) {
+        board = new int[Game.ROWS][Game.COLUMNS];
         this.sudokuController = sudokuController;
     }
 
@@ -42,8 +52,8 @@ public class Sudoku {
     private boolean preCheck() {
 
 
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
+        for (int i = 0; i < Game.ROWS; i++) {
+            for (int j = 0; j < Game.COLUMNS; j++) {
 
                 if (board[i][j] == 0) {
                     continue;
@@ -64,17 +74,15 @@ public class Sudoku {
 
     private boolean solve(int i, int j) {
 
-
-        if (i == 9) {
+        if (i == Game.ROWS) {
             i = 0;
-            if (++j == 9) {
+            j++;
+            if (j == Game.COLUMNS)
                 return true;
-            }
         }
 
-        if (board[i][j] != 0) {
+        if (board[i][j] != 0)
             return solve(i + 1, j);
-        }
 
         for (int k = 1; k <= 9; k++) {
             if (withinRules(i, j, k)) {
@@ -91,9 +99,9 @@ public class Sudoku {
                 }
 
 
-                if (solve(i + 1, j)) {
+                if (solve(i + 1, j))
                     return true;
-                }
+
             }
         }
 
@@ -102,6 +110,12 @@ public class Sudoku {
 
     }
 
+    /**
+     *
+     * @param i Row to retrieve from.
+     * @param j Column to retrieve from.
+     * @return  Value found at the specified location.
+     */
     public int getValue(int i, int j) {
         return board[i][j];
     }
@@ -119,12 +133,12 @@ public class Sudoku {
 
     private boolean withinRules(int i, int j, int val) {
 
-        for (int k = 0; k < 9; k++) { // Checking row
+        for (int k = 0; k < Game.ROWS; k++) { // Checking row
             if (board[i][k] == val)
                 return false;
         }
 
-        for (int k = 0; k < 9; k++) { // Checking column
+        for (int k = 0; k < Game.COLUMNS; k++) { // Checking column
             if (board[k][j] == val)
                 return false;
         }
@@ -144,11 +158,11 @@ public class Sudoku {
     }
 
     /**
-     * Clears the board.
+     * Clears the board. (Sets all cells to empty)
      */
     public void clear() {
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
+        for (int i = 0; i < Game.ROWS; i++) {
+            for (int j = 0; j < Game.COLUMNS; j++) {
                 board[i][j] = 0;
             }
         }
@@ -157,7 +171,7 @@ public class Sudoku {
 
     /**
      * Gives the current state of the board in a formatted form.
-     * @return Returns the printed text.
+     * @return Returns the formatted text.
      */
     public String printSudoku() {
 
