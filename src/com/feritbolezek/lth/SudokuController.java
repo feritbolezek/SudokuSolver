@@ -1,6 +1,6 @@
 package com.feritbolezek.lth;
 
-import com.feritbolezek.lth.constants.Colors;
+import com.feritbolezek.lth.constants.*;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
@@ -37,9 +37,8 @@ public class SudokuController extends Application {
         Group root = new Group();
         Scene mainScene = new Scene(root,395,450, Paint.valueOf(Colors.BACKGROUND_COLOR));
         stage.setScene(mainScene);
-        stage.setTitle("EZ Sudoku Solver");
-        stage.getIcons().add(new Image("https://images.assetsdelivery.com/compings_v2/urfandadashov/urfandadashov1808/urfandadashov180815816.jpg"));
-        stage.setResizable(false);
+        stage.setTitle(Game.TITLE);
+        stage.getIcons().add(new Image(Game.ICON));
 
         sudoku = new Sudoku(this);
 

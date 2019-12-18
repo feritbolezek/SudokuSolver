@@ -59,8 +59,13 @@ public class SudokuTest {
          * Testing overwriting with incorrect values
          /****************************************************************************/
 
-        sudoku.updateTileValue(1,5,18);
-        sudoku.updateTileValue(1,3,38);
+        try {
+            sudoku.updateTileValue(1, 5, 18);
+            sudoku.updateTileValue(1, 3, 38);
+            Assert.fail("Expected continued execution in catch block.");
+        } catch (IllegalArgumentException e) {
+            // Great!
+        }
 
         Assert.assertEquals("Expected 2 got: " + sudoku.getValue(1,5) + " on cell: [" + 1 + "," + 5 + "]",2,sudoku.getValue(1,5));
         Assert.assertEquals("Expected 8 got: " + sudoku.getValue(1,3) + " on cell: [" + 1 + "," + 3 + "]",8,sudoku.getValue(1,3));

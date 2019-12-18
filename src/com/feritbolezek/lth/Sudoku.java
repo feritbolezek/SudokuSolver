@@ -11,6 +11,10 @@ import java.util.StringJoiner;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+
+/**
+ * <h1>The main logic class for the Sudoku game.</h1>
+ */
 public class Sudoku {
 
     private int[][] board;
@@ -92,7 +96,7 @@ public class Sudoku {
                     Platform.runLater(() -> sudokuController.updateAllValues());
 
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(10); // Don't put below 10ms. It causes... "weird" issues.
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -125,10 +129,13 @@ public class Sudoku {
      * @param i row.
      * @param j column.
      * @param value the new value to update the cell with.
+     * @throws IllegalArgumentException If the value passed in is less than zero or greater than 9.
      */
-    public void updateTileValue(int i, int j, int value) {
+    public void updateTileValue(int i, int j, int value) throws IllegalArgumentException {
         if (value >= 0 && value <= 9)
             board[i][j] = value;
+        else
+            throw new IllegalArgumentException();
     }
 
     private boolean withinRules(int i, int j, int val) {
